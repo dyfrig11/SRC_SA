@@ -1,0 +1,85 @@
+import streamlit as st
+import time
+
+def temukan_min_platform_BruteForce(kedatangan, keberangkatan):
+    start = time.time()  # Mulai perhitungan waktu
+    
+    max_platform = 0
+    n = len(kedatangan)
+    
+    # Sort both the arrival and departure times
+    kedatangan.sort()
+    keberangkatan.sort()
+    
+    peron_diperlukan = 1  # At least one platform is needed initially
+    hasil_peron = 1
+    i = 1
+    j = 0  # i for arrival, j for departure
+
+    st.write("Penyelesaian Dengan Algoritma Brute Force")
+    st.write("Peron awal adalah : 1")
+
+    while i < n and j < n:
+        if kedatangan[i] <= keberangkatan[j]:
+            peron_diperlukan += 1
+            i += 1
+        else:
+            peron_diperlukan -= 1
+            j += 1
+        if peron_diperlukan > hasil_peron:
+            hasil_peron = peron_diperlukan
+            st.write(f"Akan ditambahkan peron menjadi: {hasil_peron}")
+
+    stop = time.time()  # Akhiri perhitungan waktu
+    duration = (stop - start) * 1e6  # Hitung durasi dalam microseconds
+    st.write(f"Waktu eksekusi (Brute Force): {duration:.2f} microseconds")
+    
+    st.write("Penyelesaian dengan Brute Force Menghasilkan Minimal", hasil_peron)
+
+def temukan_min_platform_Greedy(kedatangan, keberangkatan):
+    start = time.time()  # Mulai perhitungan waktu
+
+    st.write("Penyelesaian Dengan Algoritma Greedy")
+
+    n = len(kedatangan)
+    max_waiting_time = 0
+    max_waiting_train = -1
+    for i in range(n):
+        waiting_time = keberangkatan[i] - kedatangan[i]
+        if waiting_time > max_waiting_time:
+            max_waiting_time = waiting_time
+            max_waiting_train = i
+
+    if max_waiting_train != -1:
+        st.write(f"Kereta dengan waktu tunggu terlama adalah kereta {max_waiting_train + 1} dengan waktu tunggu {max_waiting_time // 100} jam.")
+
+        tambahan_peron = 1
+        for i in range(n):
+            if i != max_waiting_train and kedatangan[i] >= kedatangan[max_waiting_train] and kedatangan[i] <= keberangkatan[max_waiting_train]:
+                tambahan_peron += 1
+                st.write(f"Kereta {i + 1} datang selama waktu tunggu kereta {max_waiting_train + 1}")
+
+        if tambahan_peron > 0:
+            x = tambahan_peron
+            st.write(f"Akan ditambahkan peron menjadi: {x} karena adanya kereta yang datang selama waktu tunggu.")
+
+    stop = time.time()  # Akhiri perhitungan waktu
+    duration = (stop - start) * 1e6  # Hitung durasi dalam microseconds
+    st.write(f"Waktu eksekusi (Greedy): {duration:.2f} microseconds")
+
+    st.write("Jumlah minimum peron yang dibutuhkan adalah : ", x)
+
+st.title("Minimal Platform Railway Station")
+kedatangan_input = st.text_area("Masukkan waktu kedatangan (dipisahkan oleh koma)")
+keberangkatan_input = st.text_area("Masukkan waktu keberangkatan (dipisahkan oleh koma)")
+
+if st.button("Calculate"):
+    if kedatangan_input and keberangkatan_input:
+        kedatangan = list(map(int, kedatangan_input.split(',')))
+        keberangkatan = list(map(int, keberangkatan_input.split(',')))
+
+        st.write("Hasil Brute Force:")
+        st.write(temukan_min_platform_BruteForce(kedatangan, keberangkatan))
+        
+        st.write("Hasil Greedy:")
+        st.write(temukan_min_platform_Greedy(kedatangan, keberangkatan))
